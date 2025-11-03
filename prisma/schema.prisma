@@ -1,0 +1,29 @@
+generator client {
+    provider = "prisma-client"
+    output   = "../src/generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Tipo {
+    id   Int    @id @default(autoincrement())
+    nome String
+    pets Pet[]
+}
+
+model Pet {
+    id           Int      @id @default(autoincrement())
+    nome         String
+    idade        Int
+    tamanho      String
+    descricao    String?
+    imagemUrl    String?
+    adotado      Boolean  @default(false)
+    tipoId       Int
+    tipo         Tipo     @relation(fields: [tipoId], references: [id])
+    criadoEm     DateTime @default(now())
+    atualizadoEm DateTime @updatedAt
+}
