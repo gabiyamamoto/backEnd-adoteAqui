@@ -42,7 +42,7 @@ async function main() {
             "https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?w=400&h=400&fit=crop"
         ],
         "Gato": [
-            "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop",
+            "https://postimg.cc/hzcfzcMk",
             "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=400&h=400&fit=crop",
             "https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=400&h=400&fit=crop",
             "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=400&h=400&fit=crop",
