@@ -1,170 +1,1461 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 async function main() {
-    console.log("🚀 Iniciando o seed...");
+    console.log('Iniciando seed do banco de dados...');
 
-    // Limpar na ordem correta (por causa do relacionamento)
-    await prisma.pet.deleteMany();
-    await prisma.tipo.deleteMany();
+    console.log('Criando tipos de pets...');
 
-    console.log("📝 Criando tipos...");
-    const tipos = [
-        { nome: "Cachorro" },
-        { nome: "Gato" },
-        { nome: "Coelho" },
-        { nome: "Pássaro" },
-        { nome: "Hamster" },
-    ];
-
-    // Criar tipos primeiro 
-    await prisma.tipo.createMany({
-        data: tipos,
-        skipDuplicates: true
-    });
-
-    // Buscar os tipos criados
-    const tiposCadastrados = await prisma.tipo.findMany();
-    console.log(`✅ ${tiposCadastrados.length} tipos criados`);
-
-    // 🖼️ Banco de imagens realistas por tipo
-    const imagensPorTipo = {
-        "Cachorro": [
-            "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1560809459-8b6f0e5829e9?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1517423447168-cb804aafa6e0?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1534351450181-ea9c7846c932?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1554692918-08fa0fdc9db3?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?w=400&h=400&fit=crop"
+    const tipos = await prisma.tipos.createManyAndReturn({
+        data: [
+            { nome: 'Cachorro' },
+            { nome: 'Gato' },
+            { nome: 'Coelho' },
+            { nome: 'Pássaro' },
+            { nome: 'Hamster' }
         ],
-        "Gato": [
-            "https://postimg.cc/hzcfzcMk",
-            "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1511044568932-338cba0ad803?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1548247416-5862cce562e6?w=400&h=400&fit=crop"
-        ],
-        "Coelho": [
-            "https://images.unsplash.com/photo-1551969014-7d2c4cddf0b6?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1452857297128-d9c29adba80b?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1578164253957-22fafe4e7d50?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1578309851820-8d188b4ce9ce?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1585110962484-57d37d76580c?w=400&h=400&fit=crop"
-        ],
-        "Pássaro": [
-            "https://images.unsplash.com/photo-1552728089-57bdde30beb3?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1555169062-013468b47731?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1516683989964-d06b6e16fcc1?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1533560816587-1d13ec8c35a8?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1516673164556-52e315e33913?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1572402230267-f3e267c1e5a2?w=400&h=400&fit=crop"
-        ],
-        "Hamster": [
-            "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1545529462-44e6f9b7c9a9?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1584555130003-bb69dad606e0?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1584555130003-2d1d6f8eec77?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1584555130003-2d1d6f8eec77?w=400&h=400&fit=crop"
-        ]
-    };
+        skipDuplicates: true,
+    })
 
-    // Nomes realistas para pets
-    const nomesPorTipo = {
-        "Cachorro": ["Rex", "Thor", "Luna", "Mel", "Bob", "Nina", "Toby", "Lola", "Max", "Bella", "Charlie", "Sophie"],
-        "Gato": ["Mimi", "Oliver", "Luna", "Simba", "Chloe", "Leo", "Lily", "Milo", "Nala", "Jack", "Lucy", "Oscar"],
-        "Coelho": ["Cotton", "Snowball", "Bunny", "Poppy", "Coco", "Daisy", "Marshmallow", "Thumper", "Peanut"],
-        "Pássaro": ["Piu Piu", "Blue", "Sunny", "Tweety", "Rio", "Sky", "Mango", "Kiwi", "Pearl"],
-        "Hamster": ["Nibbles", "Chester", "Hammy", "Gizmo", "Peanut", "Chip", "Squeaky", "Pip"]
-    };
+    const tipoMap = {}
+    tipos.forEach(tipo => {
+        tipoMap[tipo.nome.toLowerCase()] = tipo.id
+    })
 
-    // Descrições realistas
-    const descricoesPorTipo = {
-        "Cachorro": [
-            "Muito brincalhão e carinhoso, adora crianças e outros animais.",
-            "Tranquilo e obediente, perfeito para apartamento.",
-            "Energético e alegre, precisa de espaço para correr.",
-            "Protetor e leal, ótimo companheiro para a família.",
-            "Inteligente e fácil de treinar, adora aprender truques novos."
-        ],
-        "Gato": [
-            "Calmo e independente, perfeito para quem trabalha fora.",
-            "Brincalhão e curioso, adora explorar ambientes novos.",
-            "Carinhoso e tranquilo, gosta de colo e carinho.",
-            "Ativo e inteligente, adora brinquedos interativos.",
-            "Sociável e amigável, se dá bem com outros animais."
-        ],
-        "Coelho": [
-            "Tranquilo e fofinho, adora cenouras e ficar no colo.",
-            "Curioso e ativo, precisa de espaço para pular e explorar.",
-            "Carinhoso e calmo, perfeito para crianças responsáveis.",
-            "Brincalhão e inteligente, adora túneis e brinquedos."
-        ],
-        "Pássaro": [
-            "Cantora e alegre, enche a casa de música e vida.",
-            "Inteligente e curiosa, adora interagir com a família.",
-            "Tranquila e carinhosa, perfeita para apartamento.",
-            "Brincalhona e ativa, adora brinquedos coloridos."
-        ],
-        "Hamster": [
-            "Ativo e divertido, adora correr na rodinha.",
-            "Curioso e fofinho, perfeito para observar.",
-            "Tranquilo e fácil de cuidar, ideal para iniciantes.",
-            "Brincalhão e energético, adora túneis e esconderijos."
-        ]
-    };
+    console.log('Tipos criados com sucesso!');
 
-    console.log("🐕 Criando 100 pets realistas...");
-    const pets = [];
+    const petsData = [
+        {
+            "nome": "Max",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Labrador Retriever",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "São Paulo, SP",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Fêmea tranquila com pelagem preta e branca",
+            "imagemUrl": "https://images.pexels.com/photos/2253275/pexels-photo-2253275.jpeg"
+        },
+        {
+            "nome": "Luna",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Golden Retriever",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "fêmea",
+            "local": "Rio de Janeiro, RJ",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Muito carinhosa e obediente",
+            "imagemUrl": "https://images.pexels.com/photos/34571191/pexels-photo-34571191.jpeg"
+        },
+        {
+            "nome": "Thor",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Pastor Alemão",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Campo Grande, MS",
+            "adotado": true,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Cão muito inteligente e protetor",
+            "imagemUrl": "https://images.pexels.com/photos/333083/pexels-photo-333083.jpeg"
+        },
+        {
+            "nome": "Mel",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Curitiba, PR",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Brincalhona e cheia de energia",
+            "imagemUrl": "https://images.pexels.com/photos/10158240/pexels-photo-10158240.jpeg"
+        },
+        {
+            "nome": "Bob",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Bulldog Francês",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Porto Alegre, RS",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Calmo e muito companheiro",
+            "imagemUrl": "https://images.pexels.com/photos/776078/pexels-photo-776078.jpeg"
+        },
+        {
+            "nome": "Nina",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Poodle",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Salvador, BA",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Muito inteligente e carinhosa",
+            "imagemUrl": "https://images.pexels.com/photos/29452101/pexels-photo-29452101.jpeg"
+        },
+        {
+            "nome": "Rex",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Rottweiler",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Brasília, DF",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Leal e muito protetor da família",
+            "imagemUrl": "https://images.pexels.com/photos/170325/pexels-photo-170325.jpeg"
+        },
+        {
+            "nome": "Bela",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Beagle",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Fortaleza, CE",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Curiosa e muito amigável",
+            "imagemUrl": "https://images.pexels.com/photos/3764319/pexels-photo-3764319.jpeg"
+        },
+        {
+            "nome": "Zeca",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Recife, PE",
+            "adotado": true,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Filhote muito brincalhão",
+            "imagemUrl": "https://images.pexels.com/photos/2873386/pexels-photo-2873386.jpeg"
+        },
+        {
+            "nome": "Lola",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Shih Tzu",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Manaus, AM",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Tranquila e muito companheira",
+            "imagemUrl": "https://images.pexels.com/photos/91243/pexels-photo-91243.jpeg"
+        },
+        {
+            "nome": "Toby",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Dachshund",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Florianópolis, SC",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Corajoso e muito divertido",
+            "imagemUrl": "https://images.pexels.com/photos/169524/pexels-photo-169524.jpeg"
+        },
+        {
+            "nome": "Duda",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Vitória, ES",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Muito carinhosa e esperta",
+            "imagemUrl": "https://images.pexels.com/photos/6970636/pexels-photo-6970636.jpeg"
+        },
+        {
+            "nome": "Jack",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Border Collie",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Goiânia, GO",
+            "adotado": true,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Extremamente inteligente e ativo",
+            "imagemUrl": "https://images.pexels.com/photos/3523317/pexels-photo-3523317.jpeg"
+        },
+        {
+            "nome": "Maya",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Husky Siberiano",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "fêmea",
+            "local": "Belém, PA",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Energética e muito amigável",
+            "imagemUrl": "https://images.pexels.com/photos/3715583/pexels-photo-3715583.jpeg"
+        },
+        {
+            "nome": "Bilu",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Natal, RN",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Filhote muito carinhoso",
+            "imagemUrl": "https://images.pexels.com/photos/4116956/pexels-photo-4116956.jpeg"
+        },
+        {
+            "nome": "Luna",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Yorkshire Terrier",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Campo Grande, MS",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Pequena mas cheia de personalidade",
+            "imagemUrl": "https://images.pexels.com/photos/163602/dog-puppy-yorkshire-terrier-yorkshire-terrier-puppy-163602.jpeg"
+        },
+        {
+            "nome": "Bruce",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Boxer",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Cuiabá, MT",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Brincalhão e muito leal",
+            "imagemUrl": "https://images.pexels.com/photos/1739125/pexels-photo-1739125.jpeg"
+        },
+        {
+            "nome": "Kiara",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Teresina, PI",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Muito dócil e companheira",
+            "imagemUrl": "https://images.pexels.com/photos/7360253/pexels-photo-7360253.jpeg"
+        },
+        {
+            "nome": "Fred",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Pug",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "João Pessoa, PB",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Calmo e muito engraçado",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Pandora",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Maceió, AL",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Alegre e muito carinhosa",
+            "imagemUrl": "https://images.pexels.com/photos/7822128/pexels-photo-7822128.jpeg"
+        },
+        {
+            "nome": "Zeus",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Doberman",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "São Luís, MA",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Inteligente e muito protetor",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Lily",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Cocker Spaniel",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Aracaju, SE",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Doce e muito amorosa",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Bolt",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Porto Velho, RO",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Muito rápido e brincalhão",
+            "imagemUrl": "https://images.pexels.com/photos/9677889/pexels-photo-9677889.jpeg"
+        },
+        {
+            "nome": "Nala",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Schnauzer",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Rio Branco, AC",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Inteligente e muito ativa",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Ronaldo",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Macapá, AP",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Fortão e muito brincalhão",
+            "imagemUrl": "https://images.pexels.com/photos/18526253/pexels-photo-18526253.jpeg"
+        },
+        {
+            "nome": "Floquinho",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Maltês",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Palmas, TO",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Pequeno, branco e muito fofo",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Jade",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Boa Vista, RR",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Muito esperta e carinhosa",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Apolo",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Pitbull",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Santos, SP",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Muito forte e carinhoso",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Cleo",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Niterói, RJ",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Pequena e muito corajosa",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Tico",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Chihuahua",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Uberlândia, MG",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Pequeno mas com grande personalidade",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Estrela",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Londrina, PR",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Muito dócil e companheira",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Scooby",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Dogue Alemão",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Caxias do Sul, RS",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Gigante e muito gentil",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Pérola",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Feira de Santana, BA",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Branquinha e muito meiga",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Rocky",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Bulldog Inglês",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Anápolis, GO",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Calmo e muito companheiro",
+            "imagemUrl": "https://images.pexels.com/photos/3693208/pexels-photo-3693208.jpeg"
+        },
+        {
+            "nome": "Daisy",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Joinville, SC",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Alegre e muito brincalhona",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Banguela",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Serra, ES",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Experiente e muito tranquilo",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Mimi",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Lhasa Apso",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "São José dos Campos, SP",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Pequena e muito elegante",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Trovão",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Duque de Caxias, RJ",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Fortão e muito protetor",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Pipoca",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Contagem, MG",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Pequena e cheia de energia",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Spike",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Shar Pei",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Maringá, PR",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Tranquilo e muito fiel",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Lua",
+            "tipoId": tipoMap['cachorro'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Canoas, RS",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Calma e muito amorosa",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Luna",
+            "tipoId": tipoMap['gato'],
+            "raca": "Siamês",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "São Paulo, SP",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Gato muito vocal e carinhoso, adora atenção",
+            "imagemUrl": "https://images.pexels.com/photos/979247/pexels-photo-979247.jpeg"
+        },
+        {
+            "nome": "Thor",
+            "tipoId": tipoMap['gato'],
+            "raca": "Maine Coon",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Rio de Janeiro, RJ",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Gato grande e majestoso, muito tranquilo",
+            "imagemUrl": "https://images.pexels.com/photos/1475260/pexels-photo-1475260.jpeg"
+        },
+        {
+            "nome": "Mimi",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Belo Horizonte, MG",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Brincalhona e curiosa, adora explorar",
+            "imagemUrl": "https://images.pexels.com/photos/20298026/pexels-photo-20298026.jpeg"
+        },
+        {
+            "nome": "Oliver",
+            "tipoId": tipoMap['gato'],
+            "raca": "Persa",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Curitiba, PR",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Peludo e muito tranquilo, perfeito para apartamento",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Bella",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Porto Alegre, RS",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Doce e carinhosa, adora colo",
+            "imagemUrl": "https://images.pexels.com/photos/20893096/pexels-photo-20893096.jpeg"
+        },
+        {
+            "nome": "Simba",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Salvador, BA",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Energético e brincalhão, sempre pronto para diversão",
+            "imagemUrl": "https://images.pexels.com/photos/1005174/pexels-photo-1005174.jpeg"
+        },
+        {
+            "nome": "Chloe",
+            "tipoId": tipoMap['gato'],
+            "raca": "Angorá",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Brasília, DF",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Elegante e independente, mas muito carinhosa",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Loki",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Fortaleza, CE",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Filhote travesso, cheio de energia e curiosidade",
+            "imagemUrl": "https://images.pexels.com/photos/9880900/pexels-photo-9880900.jpeg"
+        },
+        {
+            "nome": "Sophia",
+            "tipoId": tipoMap['gato'],
+            "raca": "Rajado",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Recife, PE",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Padrão rajado lindo, muito dócil e companheira",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Max",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Manaus, AM",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Gato grande e imponente, mas muito meigo",
+            "imagemUrl": "https://images.pexels.com/photos/20668579/pexels-photo-20668579.jpeg"
+        },
+        {
+            "nome": "Lua",
+            "tipoId": tipoMap['gato'],
+            "raca": "Preto",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Florianópolis, SC",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Gatinha preta misteriosa e muito elegante",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Charlie",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Vitória, ES",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Amigável e sociável, se dá bem com outros animais",
+            "imagemUrl": "https://images.pexels.com/photos/13282991/pexels-photo-13282991.jpeg"
+        },
+        {
+            "nome": "Nala",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Goiânia, GO",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Carinhosa e brincalhona, adora brinquedos",
+            "imagemUrl": "https://images.pexels.com/photos/30425548/pexels-photo-30425548.jpeg"
+        },
+        {
+            "nome": "Jack",
+            "tipoId": tipoMap['gato'],
+            "raca": "Bengal",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Belém, PA",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Pelagem exótica, muito ativo e inteligente",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Mia",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Natal, RN",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Filhote curiosa, adora explorar cada cantinho",
+            "imagemUrl": "https://images.pexels.com/photos/29240759/pexels-photo-29240759.jpeg"
+        },
+        {
+            "nome": "Oscar",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Campo Grande, MS",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Sábio e tranquilo, perfeito para famílias calmas",
+            "imagemUrl": "https://images.pexels.com/photos/1601311/pexels-photo-1601311.jpeg"
+        },
+        {
+            "nome": "Lily",
+            "tipoId": tipoMap['gato'],
+            "raca": "Sphynx",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Cuiabá, MT",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Gata sem pelo, muito carinhosa e ama aconchego",
+            "imagemUrl": "https://images.pexels.com/photos/34574285/pexels-photo-34574285.jpeg"
+        },
+        {
+            "nome": "Tigre",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Teresina, PI",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Padrão tigrado, aventureiro e independente",
+            "imagemUrl": "https://images.pexels.com/photos/13304875/pexels-photo-13304875.jpeg"
+        },
+        {
+            "nome": "Branquinha",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "João Pessoa, PB",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Branquinha como neve, muito delicada e meiga",
+            "imagemUrl": "https://images.pexels.com/photos/29865161/pexels-photo-29865161.jpeg"
+        },
+        {
+            "nome": "Felix",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Maceió, AL",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Classico gato preto e branco, muito charmoso",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Cleo",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "São Luís, MA",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Rainha da casa, elegante e um pouco exigente",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Tom",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Aracaju, SE",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Fortão e protetor, mas muito carinhoso com a família",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Pandora",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Porto Velho, RO",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Curiosa como uma caixa de pandora, sempre explorando",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Garfield",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Rio Branco, AC",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Preguiçoso e comilão, adora lasanha e sonecas",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Jade",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Macapá, AP",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Olhos verdes impressionantes, muito observadora",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Romeu",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Palmas, TO",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Romântico e carinhoso, adora fazer companhia",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Kiara",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Boa Vista, RR",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Jovem e energética, adora brincar com bolinhas",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Bruce",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Santos, SP",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Fortão e corajoso, mas com coração de ouro",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Estrela",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Niterói, RJ",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Brilha como uma estrela, muito especial e única",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Zeca",
+            "tipoId": tipoMap['gato'],
+            "raca": "Vira-lata",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Uberlândia, MG",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Descontraído e amigável, se adapta fácil a qualquer ambiente",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Cotton",
+            "tipoId": tipoMap['coelho'],
+            "raca": "Coelho Anão",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "São Paulo, SP",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Coelhinho anão muito fofo e tranquilo",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Bolinha",
+            "tipoId": tipoMap['coelho'],
+            "raca": "Coelho Holandês",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Rio de Janeiro, RJ",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Fêmea tranquila com pelagem preta e branca",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Pipoca",
+            "tipoId": tipoMap['coelho'],
+            "raca": "Coelho Lionhead",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Belo Horizonte, MG",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Jovem coelho com juba de leão, muito curioso",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Luna",
+            "tipoId": tipoMap['coelho'],
+            "raca": "Coelho Rex",
+            "idade": "filhote",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Curitiba, PR",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Pelagem aveludada, muito calma e carinhosa",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Thumper",
+            "tipoId": tipoMap['coelho'],
+            "raca": "Coelho Californiano",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Porto Alegre, RS",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Coelho experiente e muito tranquilo",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Daisy",
+            "tipoId": tipoMap['coelho'],
+            "raca": "Coelho Anão",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Salvador, BA",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Filhote brincalhona, adora correr e pular",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Snowball",
+            "tipoId": tipoMap['coelho'],
+            "raca": "Coelho Nova Zelândia",
+            "idade": "adulto",
+            "tamanho": "grande",
+            "genero": "macho",
+            "local": "Brasília, DF",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Coelho grande e branco, muito dócil",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Cacau",
+            "tipoId": tipoMap['coelho'],
+            "raca": "Coelho Marrom",
+            "idade": "filhote",
+            "tamanho": "médio",
+            "genero": "fêmea",
+            "local": "Fortaleza, CE",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Pelagem marrom chocolate, muito meiga",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Bugs",
+            "tipoId": tipoMap['coelho'],
+            "raca": "Coelho Americano",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Recife, PE",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Coelho sábio e muito tranquilo, perfeito para iniciantes",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Mel",
+            "tipoId": tipoMap['coelho'],
+            "raca": "Coelho Anão",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Manaus, AM",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": true,
+            "descricao": "Pequena e doce como mel, adora carinho",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Blue",
+            "tipoId": tipoMap['pássaro'],
+            "raca": "Calopsita",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "São Paulo, SP",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Calopsita cinza muito cantante e carinhosa",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Sunny",
+            "tipoId": tipoMap['pássaro'],
+            "raca": "Periquito Australiano",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Rio de Janeiro, RJ",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Periquito verde e amarelo, muito ativo e alegre",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Loro",
+            "tipoId": tipoMap['pássaro'],
+            "raca": "Papagaio Verdadeiro",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Belo Horizonte, MG",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Papagaio que fala algumas palavras, muito inteligente",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Kiwi",
+            "tipoId": tipoMap['pássaro'],
+            "raca": "Agapornis",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Curitiba, PR",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Agapornis verde, adora companhia e carinho",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Zé Carijó",
+            "tipoId": tipoMap['pássaro'],
+            "raca": "Canário da Terra",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Porto Alegre, RS",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Canário com canto melodioso, muito apreciado",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Fênix",
+            "tipoId": tipoMap['pássaro'],
+            "raca": "Cacatua",
+            "idade": "idoso",
+            "tamanho": "grande",
+            "genero": "fêmea",
+            "local": "Salvador, BA",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Cacatua branca majestosa, muito inteligente e carinhosa",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Piu-Piu",
+            "tipoId": tipoMap['pássaro'],
+            "raca": "Mandarim",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Brasília, DF",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Pássaro mandarim jovem, cores vibrantes e muito ativo",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Esmeralda",
+            "tipoId": tipoMap['pássaro'],
+            "raca": "Periquito Inglês",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Fortaleza, CE",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Periquito azul esverdeado, muito tranquilo e dócil",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Luna",
+            "tipoId": tipoMap['pássaro'],
+            "raca": "Calopsita Arlequim",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Recife, PE",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Calopsita com cores mistas, muito sociável e carinhosa",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Apolo",
+            "tipoId": tipoMap['pássaro'],
+            "raca": "Mainá",
+            "idade": "adulto",
+            "tamanho": "médio",
+            "genero": "macho",
+            "local": "Manaus, AM",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Mainá que imita sons e fala, extremamente inteligente",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Nugget",
+            "tipoId": tipoMap['hamster'],
+            "raca": "Hamster Sírio",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "São Paulo, SP",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Hamster sírio dourado, muito ativo à noite",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Pipoca",
+            "tipoId": tipoMap['hamster'],
+            "raca": "Hamster Anão Russo",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Rio de Janeiro, RJ",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Pequena e rápida, adora correr na rodinha",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Brownie",
+            "tipoId": tipoMap['hamster'],
+            "raca": "Hamster Sírio",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Belo Horizonte, MG",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Pelagem marrom escura, muito curioso e explorador",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Snowflake",
+            "tipoId": tipoMap['hamster'],
+            "raca": "Hamster Anão Branco",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Curitiba, PR",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Branquinha como neve, muito fofa e tranquila",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Chester",
+            "tipoId": tipoMap['hamster'],
+            "raca": "Hamster Chinês",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Porto Alegre, RS",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Hamster de cauda longa, muito ágil e inteligente",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Mimi",
+            "tipoId": tipoMap['hamster'],
+            "raca": "Hamster Roborovski",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Salvador, BA",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "A menor espécie de hamster, super rápida e ativa",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Oreo",
+            "tipoId": tipoMap['hamster'],
+            "raca": "Hamster Sírio",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Brasília, DF",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Preto e branco, muito tranquilo e fácil de manusear",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Buttercup",
+            "tipoId": tipoMap['hamster'],
+            "raca": "Hamster Anão Campbell",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Fortaleza, CE",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Pelagem bege clara, sociável e brincalhona",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Gizmo",
+            "tipoId": tipoMap['hamster'],
+            "raca": "Hamster Sírio",
+            "idade": "adulto",
+            "tamanho": "pequeno",
+            "genero": "macho",
+            "local": "Recife, PE",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Orelhas grandes e expressivas, muito carinhoso",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        },
+        {
+            "nome": "Daisy",
+            "tipoId": tipoMap['hamster'],
+            "raca": "Hamster Anão Russo",
+            "idade": "filhote",
+            "tamanho": "pequeno",
+            "genero": "fêmea",
+            "local": "Manaus, AM",
+            "adotado": false,
+            "vacinado": true,
+            "castrado": false,
+            "descricao": "Cinza claro com listra preta, adora sementes de girassol",
+            "imagemUrl": "https://placehold.co/600x400/EEE/31343C?text=Pet+Em+Breve"
+        }
+    ]
 
-    for (let i = 1; i <= 100; i++) {
-        const tipo = tiposCadastrados[Math.floor(Math.random() * tiposCadastrados.length)];
-        const tipoNome = tipo.nome;
+    console.log('Criando pets...');
+    await prisma.pets.createMany({
+        data: petsData,
+        skipDuplicates: true,
+    })
 
-        // Escolher elementos aleatórios
-        const nomes = nomesPorTipo[tipoNome];
-        const imagens = imagensPorTipo[tipoNome];
-        const descricoes = descricoesPorTipo[tipoNome];
-
-        const nome = nomes[Math.floor(Math.random() * nomes.length)];
-        const imagemUrl = imagens[Math.floor(Math.random() * imagens.length)];
-        const descricao = descricoes[Math.floor(Math.random() * descricoes.length)];
-
-        pets.push({
-            nome: nome,
-            idade: Math.floor(Math.random() * 10) + 1, // 1-10 anos
-            tamanho: ["Pequeno", "Médio", "Grande"][Math.floor(Math.random() * 3)],
-            descricao: descricao,
-            tipoId: tipo.id,
-            imagemUrl: imagemUrl,
-        });
-    }
-
-    await prisma.pet.createMany({ data: pets });
-    console.log("🎉 100 pets REALISTAS criados com sucesso!");
-    console.log("📊 Estatísticas:");
-
-    // Mostrar estatísticas
-    for (const tipo of tiposCadastrados) {
-        const count = pets.filter(p => p.tipoId === tipo.id).length;
-        console.log(`${tipo.nome}: ${count} pets`);
-    }
+    console.log('Seed concluído com sucesso!');
 }
 
 main()
     .catch((e) => {
-        console.error("❌ Erro no seed:", e);
-        process.exit(1);
+        console.error('Erro durante o seed:', e);
+        process.exit(1)
     })
     .finally(async () => {
-        await prisma.$disconnect();
-    });
+        await prisma.$disconnect()
+    })

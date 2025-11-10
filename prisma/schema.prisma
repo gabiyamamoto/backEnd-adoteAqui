@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 generator client {
     provider = "prisma-client-js"
 }
@@ -7,25 +8,29 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Tipo {
-    id   Int    @id @default(autoincrement())
-    nome String @unique
-    pets Pet[]
-
-    @@map("tipos")
-}
-
-model Pet {
+model Tipos {
     id        Int      @id @default(autoincrement())
-    nome      String
-    idade     Int
-    tamanho   String
-    descricao String
-    imagemUrl String?
-    tipoId    Int
-    tipo      Tipo     @relation(fields: [tipoId], references: [id])
+    nome      String   @unique
+    Pets      Pets[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
 
-    @@map("pets")
+model Pets {
+    id        Int      @id @default(autoincrement())
+    nome      String
+    tipoId    Int
+    Tipos     Tipos    @relation(fields: [tipoId], references: [id])
+    raca      String
+    idade     String
+    tamanho   String
+    genero    String
+    local     String
+    adotado   Boolean  @default(false)
+    vacinado  Boolean  @default(false)
+    castrado  Boolean  @default(false)
+    descricao String?
+    imagemUrl String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
