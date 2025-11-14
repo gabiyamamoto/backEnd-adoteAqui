@@ -10,7 +10,7 @@ export const listarTodos = async (req, res) => {
 
         if (req.query.especie) filtros.especie = req.query.especie;
         if (req.query.idade) filtros.idade = req.query.idade;
-        if (req.query.tamanho) filtros.espetamanhocie = req.query.tamanho;
+        if (req.query.tamanho) filtros.tamanho = req.query.tamanho;
         if (req.query.adotado) filtros.adotado = req.query.adotado;
 
         const pets = await PetsModel.encontreTodos(filtros);
