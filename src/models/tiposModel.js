@@ -5,7 +5,10 @@ export const encontreTodos = async (filtros) => {
     const query = {};
 
     if (filtros.especie) {
-        query.especie = filtros.especie;
+        query.especie = {
+            equals: filtros.especie,
+            mode: 'insensitive'
+        };
     }
 
     const tipos = await prisma.tipos.findMany({
