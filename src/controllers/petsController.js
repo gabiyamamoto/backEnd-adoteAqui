@@ -11,6 +11,7 @@ export const listarTodos = async (req, res) => {
         if (req.query.especie) filtros.especie = req.query.especie;
         if (req.query.idade) filtros.idade = req.query.idade;
         if (req.query.tamanho) filtros.tamanho = req.query.tamanho;
+        if (req.query.genero) filtros.genero = req.query.genero;
         if (req.query.adotado) filtros.adotado = req.query.adotado;
 
         const pets = await PetsModel.encontreTodos(filtros);
@@ -98,6 +99,13 @@ export const criar = async (req, res) => {
         if (!generosPermitidos.includes(dado.genero)) {
             return res.status(400).json({
                 erro: `O gênero deve ser uma das opções: ${generosPermitidos.join(', ')}`
+            });
+        }
+
+        const tipoExiste = await TiposModel.encontreUm(dado.tipoId);
+        if (!tipoExiste) {
+            return res.status(400).json({
+                erro: 'Tipo não encontrado. Verifique se o tipoId existe.'
             });
         }
 
