@@ -36,7 +36,7 @@ export const listarTodos = async (req, res) => {
 //Listar tipo por ID
 export const listarUm = async (req, res) => {
     try {
-        const id = parseInt (req.params.id);
+        const id = parseInt(req.params.id);
 
         if (isNaN(id)) {
             return res.status(400).json({
@@ -66,6 +66,8 @@ export const listarUm = async (req, res) => {
     }
 }
 
+const especiesPermitidas = ['cachorro, gato', 'coelho', 'pássaro', 'hamster'];
+
 export const criar = async (req, res) => {
     try {
         const dado = req.body;
@@ -76,6 +78,12 @@ export const criar = async (req, res) => {
         if (faltando.length > 0) {
             return res.status(400).json({
                 erro: `Campos obrigatórios faltando: ${faltando.join(', ')}`
+            });
+        }
+
+        if (!especiesPermitidas.includes(dado.especie.toLowerCase())) {
+            return res.status(400).json({
+                erro: `Espécie deve ser uma das opções: ${especiesPermitidas.join(', ')}`
             });
         }
 
