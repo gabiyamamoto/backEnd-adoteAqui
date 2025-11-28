@@ -1,15 +1,24 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
-export async function seed() {
+async function main() {
+    console.log("🌱 Iniciando seed...")
 
     try {
-        console.log('🚀 Iniciando seed do banco de dados...');
-        // Verificar conexão primeiro
         await prisma.$connect()
         console.log('✅ Conectado ao banco de dados')
 
-        // LIMPAR DADOS EXISTENTES
+        // VERIFICAR SE JÁ EXISTEM DADOS (opcional - evita duplicação)
+        const tiposExistentes = await prisma.tipos.count()
+        const petsExistentes = await prisma.pets.count()
+
+        if (tiposExistentes > 0) {
+            console.log('📊 Banco já populado. Pulando seed...')
+            console.log(`   Tipos: ${tiposExistentes}`)
+            console.log(`   Pets: ${petsExistentes}`)
+            return
+        }
+
         console.log('🧹 Limpando dados existentes...')
         await prisma.pets.deleteMany()
         await prisma.tipos.deleteMany()
@@ -337,26 +346,18 @@ export async function seed() {
         console.log('   ✅ Banco populado com sucesso!')
 
     } catch (error) {
-        console.error('❌ ERRO NO SEED:')
-        console.error('   Mensagem:', error.message)
-        console.error('   Stack:', error.stack)
+        console.error('❌ Erro no seed:', error)
         throw error
-    } finally {
-        await prisma.$disconnect()
-        console.log('🔌 Conexão com banco fechada')
     }
-}
-
-async function main() {
-    await seed();
 }
 
 main()
     .then(async () => {
         await prisma.$disconnect();
+        console.log('🎉 Seed finalizado!');
     })
     .catch(async (e) => {
-        console.error(e);
+        console.error('💥 Erro no seed:', e);
         await prisma.$disconnect();
         process.exit(1);
-    });
+    })
