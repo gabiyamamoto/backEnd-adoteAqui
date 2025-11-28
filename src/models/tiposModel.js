@@ -27,7 +27,19 @@ export const encontreUm = async (id) => {
 }
 
 export const criar = async (dado) => {
-    const novoTipo = await prisma.tipos.create({
+
+    const tipoExistente = await prisma.tipos.findFirst({
+        where: {
+            nome_tipo: dado.nome_tipo,
+            especie: dado.especie
+        }
+    });
+
+    if (tipoExistente) {
+        throw new Error('Já existe um tipo com esse nome e espécie.');
+    }
+
+     const novoTipo = await prisma.tipos.create({
         data: {
             nome_tipo: dado.nome_tipo,
             especie: dado.especie,

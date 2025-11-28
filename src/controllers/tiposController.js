@@ -66,7 +66,6 @@ export const listarUm = async (req, res) => {
     }
 }
 
-const especiesPermitidas = ['cachorro, gato', 'coelho', 'pássaro', 'hamster'];
 
 export const criar = async (req, res) => {
     try {
@@ -80,6 +79,8 @@ export const criar = async (req, res) => {
                 erro: `Campos obrigatórios faltando: ${faltando.join(', ')}`
             });
         }
+
+        const especiesPermitidas = ['cachorro', 'gato', 'coelho', 'pássaro', 'hamster'];
 
         if (!especiesPermitidas.includes(dado.especie.toLowerCase())) {
             return res.status(400).json({
@@ -95,12 +96,20 @@ export const criar = async (req, res) => {
         });
 
     } catch (error) {
+
+        if (error.message === 'Já existe um tipo com esse nome e espécie.') {
+            return res.status(400).json({
+                erro: error.message
+            });
+        }
+
         res.status(500).json({
             erro: 'Erro ao criar novo tipo de pet',
             detalhes: error.message
         });
     }
-}
+    }
+
 
 export const deletar = async (req, res) => {
     try {
