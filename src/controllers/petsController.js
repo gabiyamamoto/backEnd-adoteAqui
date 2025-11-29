@@ -220,3 +220,38 @@ export const atualizar = async (req, res) => {
         });
     }
 };
+
+export const buscar = async (req,res) => {
+    try {
+        const {termo} = req.query;
+
+        if (!termo || termo.trim() === '') {
+            return res.status(400).json({
+                erro: 'Termo de busca é obrigatório'
+            });
+        }
+
+        const pets = await PetsModel.buscarPorIdOuNome(termo.trim());
+
+        if (!pets || pets.length === 0) {
+            return res.status(404).json({
+                total: 0,
+                mensagem: 'Nenhum pet encontrado com o termo buscado. Verifique se o ID ou o nome estão corretos',
+                termo: termo
+            });
+        }
+
+        res.status(200).json({
+            total: pets.length,
+            mensagem: pets.length === 1 ? 'Pet encontrado!' : 'Pets encontrados!',
+            termo: termo,
+            pets
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            erro: 'Erro ao buscar pets',
+            detalhes: error.message
+        });
+    }
+};

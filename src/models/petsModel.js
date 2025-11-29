@@ -83,3 +83,23 @@ export const atualizar = async (id, dado) => {
         }
     });
 };
+
+export const buscarPorIdOuNome = async (termo) => {
+    const id = Number(termo);
+
+    if (!isNaN(id)) {
+        const petPorId = await encontreUm(id);
+        return petPorId ? [petPorId] : [];
+    } else {
+        return await prisma.pets.findMany({
+            where: {
+                nome: {
+                    contains: termo,
+                    mode: 'insensitive'
+                }
+            },
+            include: { tipo: true },
+            orderBy: { id: 'asc' }
+        });
+    }
+};
