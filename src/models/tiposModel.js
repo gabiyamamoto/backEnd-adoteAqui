@@ -30,8 +30,8 @@ export const criar = async (dado) => {
 
     const tipoExistente = await prisma.tipos.findFirst({
         where: {
-            nome_tipo: dado.nome_tipo,
-            especie: dado.especie
+            nome_tipo: { equals: dado.nome_tipo, mode: "insensitive" },
+            especie: { equals: dado.especie, mode: "insensitive" }
         }
     });
 

@@ -158,6 +158,7 @@ export const atualizar = async (req, res) => {
 
         const tipoExiste = await TiposModel.encontreUm(id);
 
+        //Verifica se o ID que o adm quer editar existe 
         if (!tipoExiste) {
             return res.status(404).json({
                 erro: 'Tipo não encontrado para atualizar',
