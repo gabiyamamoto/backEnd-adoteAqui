@@ -5,10 +5,12 @@ const idadesPermitidas = ['filhote', 'adulto', 'idoso'];
 const tamanhosPermitidos = ['pequeno', 'médio', 'grande'];
 const generosPermitidos = ['macho', 'fêmea'];
 
+//Listar todos os pets (com filtros opcionalmente)
 export const listarTodos = async (req, res) => {
     try {
         const filtros = {};
 
+        //Pegando filtros enviados pela URL
         if (req.query.especie) filtros.especie = req.query.especie;
         if (req.query.idade) filtros.idade = req.query.idade;
         if (req.query.tamanho) filtros.tamanho = req.query.tamanho;
@@ -40,6 +42,7 @@ export const listarTodos = async (req, res) => {
     }
 };
 
+//Buscar pet por ID
 export const listarUm = async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -72,10 +75,12 @@ export const listarUm = async (req, res) => {
     }
 };
 
+//Criar pet
 export const criar = async (req, res) => {
     try {
         const dado = req.body;
 
+        //Verifica campos obrigatorios
         const camposObrigatorios = ['nome', 'tipoId', 'idade', 'tamanho', 'genero', 'local'];
         const faltando = camposObrigatorios.filter(campo => !dado[campo]);
 
@@ -85,6 +90,7 @@ export const criar = async (req, res) => {
             });
         }
 
+        //Valida valores posssíveis (idade, tamanho e genero)
         if (!idadesPermitidas.includes(dado.idade)) {
             return res.status(400).json({
                 erro: `A idade deve ser uma das opções: ${idadesPermitidas.join(', ')}`
@@ -103,6 +109,7 @@ export const criar = async (req, res) => {
             });
         }
 
+        //Verifica se o ID do tipo existe
         const tipoExiste = await TiposModel.encontreUm(dado.tipoId);
         if (!tipoExiste) {
             return res.status(400).json({
@@ -118,6 +125,7 @@ export const criar = async (req, res) => {
         });
 
     } catch (error) {
+        //Erro de integridade referencial
         if (error.code === 'P2003') {
             return res.status(400).json({
                 erro: 'Tipo não encontrado. Verifique se o tipoid existe.'
@@ -131,6 +139,7 @@ export const criar = async (req, res) => {
     }
 };
 
+//Deletar pet
 export const deletar = async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -165,6 +174,7 @@ export const deletar = async (req, res) => {
     }
 };
 
+//Atualizar pet
 export const atualizar = async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -176,6 +186,7 @@ export const atualizar = async (req, res) => {
             });
         }
 
+        //Validações opcionais (se o campo veio, precisa estar correto)
         if (dado.idade && !idadesPermitidas.includes(dado.idade))
             return res.status(400).json({
                 erro: `Idade deve ser uma das opções: ${idadesPermitidas.join(', ')}`
@@ -190,6 +201,16 @@ export const atualizar = async (req, res) => {
             return res.status(400).json({
                 erro: `Gênero deve ser uma das opções: ${generosPermitidos.join(', ')}`
             });
+
+        //Valida tipoId tambem no update
+        if (dado.tipoId) {
+            const tipoExiste = await TiposModel.encontreUm(Number(dado.tipoId));
+            if (!tipoExiste) {
+                return res.status(400).json({
+                    erro: 'Tipo não encontrado. Verifique se o tipoId existe.'
+                });
+            }
+        }
 
         const petExiste = await PetsModel.encontreUm(id);
 
@@ -221,9 +242,10 @@ export const atualizar = async (req, res) => {
     }
 };
 
-export const buscar = async (req,res) => {
+//Buscar por ID ou nome parcial
+export const buscar = async (req, res) => {
     try {
-        const {termo} = req.query;
+        const { termo } = req.query;
 
         if (!termo || termo.trim() === '') {
             return res.status(400).json({
